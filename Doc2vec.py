@@ -27,6 +27,18 @@ with open('/Users/pengyuzhou/Google Drive/Linkedin_datafile/data.csv', 'r') as f
         parameter_list = [row[index] for index in range(67)]
         linkedIndata_list.append(
             linkedindata_old.LinkedInData(*parameter_list))
+# train the model
+# total_user_profile = []
+# for i in range(len(linkedIndata_list)):
+#     user_profile = ' '.join(linkedIndata_list[i].return_value_all())
+#     total_user_profile.append(user_profile)
+# documents = labeled_data_sentence.LabeledLineSentence(total_user_profile, ['sentence_'+ str(i) for i in range(len(linkedIndata_list))])
+# model = Doc2Vec(min_count=1, window=10, size=100, sample=1e-4, negative=5, workers=8)
+# model.build_vocab(documents.to_array())
+# for epoch in range(20):
+#     model.train(documents.sentences_perm(), total_examples=model.corpus_count, epochs=model.iter)
+filename = '/Users/pengyuzhou/Downloads/word_embedding_result/total_data_model.d2v'
+# model.save(filename)
 
 for i in range(6):
     print('Began to read job title: '+ globalparameter.jobtitle_list[i])
@@ -43,24 +55,35 @@ for i in range(6):
         pos_profile_list = []
         neg_profile_list = []
         for k in range(len(pos_list)):
-            userprofile = ' '.join(pos_list[k].return_value_skills())
+            userprofile = ' '.join(pos_list[k].return_value_work_exp())
             pos_profile_list.append(userprofile)
 
         for k in range(len(neg_list)):
-            userprofile = ' '.join(neg_list[k].return_value_skills())
+            userprofile = ' '.join(neg_list[k].return_value_work_exp())
             neg_profile_list.append(userprofile)
 
         pos_label_list = ['pos_profile_'+ str(k) for k in range(len(pos_profile_list))]
         neg_label_list = ['neg_profile_'+ str(k) for k in range(len(pos_profile_list))]
 
-        documents = labeled_data_sentence.LabeledLineSentence(pos_profile_list,pos_label_list,neg_profile_list,neg_label_list)
-        model = Doc2Vec(min_count=1, window=10, size=100, sample=1e-4, negative=5, workers=8)
-        model.build_vocab(documents.to_array())
-        for epoch in range(20):
-            model.train(documents.sentences_perm(), total_examples=model.corpus_count, epochs=model.iter)
-            # model.train(documents.sentences_perm())
-        model.save('/Users/pengyuzhou/Downloads/word_embedding_result/job_title_'+globalparameter.jobtitle_list[i]+'.d2v')
-        model = Doc2Vec.load('/Users/pengyuzhou/Downloads/word_embedding_result/job_title_'+globalparameter.jobtitle_list[i]+'.d2v')
+        # documents = labeled_data_sentence.LabeledLineSentence(pos_profile_list,pos_label_list,neg_profile_list,neg_label_list)
+        # model = Doc2Vec(min_count=1, window=10, size=100, sample=1e-4, negative=5, workers=8)
+        # model.build_vocab(documents.to_array())
+        # for epoch in range(20):
+        #     model.train(documents.sentences_perm(), total_examples=model.corpus_count, epochs=model.iter)
+        #     # model.train(documents.sentences_perm())
+        # filename = '/Users/pengyuzhou/Downloads/word_embedding_result/job_title_'+globalparameter.jobtitle_list[i]+'.d2v'
+        # model.save(filename)
+        # filename = '/Users/pengyuzhou/Downloads/glove.6B/glove.6B.100d.txt.word2vec'
+        model = Doc2Vec.load(filename)
+
+        pos_vector_list = []
+        neg_vector_list = []
+        for x in range(len(pos_list)):
+            pos_vector_list.append(model.infer_vector(pos_profile_list[x]))
+        for x in range(len(neg_list)):
+            neg_vector_list.append(model.infer_vector(neg_profile_list[x]))
+
+        # model = Doc2Vec.load('/Users/pengyuzhou/Downloads/word_embedding_result/job_title_'+globalparameter.jobtitle_list[i]+'.d2v')
 
         test2 = model.most_similar('software')
 
@@ -70,8 +93,8 @@ for i in range(6):
         for k in range(250):
             prefix_pos_train = 'pos_profile_'+ str(k)
             prefix_neg_train = 'neg_profile_'+ str(k)
-            train_arrays[k] = model[prefix_pos_train]
-            train_arrays[250+k] = model[prefix_neg_train]
+            train_arrays[k] = pos_vector_list[k]
+            train_arrays[250+k] = neg_vector_list[k]
             train_labels[k] = 1
             train_labels[250+k] = 0
 
@@ -80,8 +103,8 @@ for i in range(6):
         for k in range(250):
             prefix_test_pos = 'pos_profile_' + str(250+k)
             prefix_test_neg = 'neg_profile_' + str(250+k)
-            test_arrays[k] = model[prefix_test_pos]
-            test_arrays[250 + k] = model[prefix_test_neg]
+            test_arrays[k] = pos_vector_list[250+k]
+            test_arrays[250 + k] = neg_vector_list[250+k]
             test_labels[k] = 1
             test_labels[250 + k] = 0
 

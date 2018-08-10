@@ -1,4 +1,4 @@
-import remove_non_alphapet
+import remove_non_alphapet,re
 class LinkedInData(object):
 
     def __init__(self, id, name, connections, title, org_summary, org_detail, duration, location, description,
@@ -146,11 +146,12 @@ class LinkedInData(object):
         self.otherLevel_degree3, self.otherLevel_major3,
         # self.otherLevel_endDate3,
         self.otherLevel_detail3,
-        self.skills,
-        self.languages])
+        # self.skills.split(','),
+        self.languages]+self.skills.split(','))
+
 
     def return_value_work_exp(self):
-        return [self.past_job_title1, self.past_job_org_summary1, self.past_job_org_detail1,
+        return remove_non_alphapet.remove_non_alpha([self.past_job_title1, self.past_job_org_summary1, self.past_job_org_detail1,
         self.past_job_duration1, self.past_job_location1,
         self.past_job_description1,
         self.past_job_title2, self.past_job_org_summary2, self.past_job_org_detail2,
@@ -168,10 +169,10 @@ class LinkedInData(object):
         self.past_job_title6, self.past_job_org_summary6, self.past_job_org_detail6,
         self.past_job_duration6, self.past_job_location6,
         self.past_job_description6,
-        ]
+        ])
 
     def return_value_edu(self):
-        return [self.highestLevel_universityName, self.highestLevel_degree, self.highestLevel_major,
+        return remove_non_alphapet.remove_non_alpha([self.highestLevel_universityName, self.highestLevel_degree, self.highestLevel_major,
         self.highestLevel_endDate, self.highestLevel_detail,
 
         self.otherLevel_universityName1, self.otherLevel_degree1, self.otherLevel_major1, self.otherLevel_endDate1,
@@ -179,8 +180,7 @@ class LinkedInData(object):
         self.otherLevel_universityName2, self.otherLevel_degree2, self.otherLevel_major2, self.otherLevel_endDate2,
         self.otherLevel_detail2,
         self.otherLevel_universityName3, self.otherLevel_degree3, self.otherLevel_major3, self.otherLevel_endDate3,
-        self.otherLevel_detail3]
+        self.otherLevel_detail3])
 
     def return_value_skills(self):
-        return [self.skills,
-        self.languages]
+        return remove_non_alphapet.remove_non_alpha([self.languages]+self.skills.split(','))
